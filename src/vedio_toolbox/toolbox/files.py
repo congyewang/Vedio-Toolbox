@@ -80,14 +80,12 @@ def batch_rename_videos_in_directory(root_dir: str) -> None:
     遍历指定目录及其所有子目录，根据特定规则重命名视频文件。
 
     原始格式: YYYY-mm-DD_HH-MM_HH-MM
-    新格式: m_DD_HH_MM_HH_MM (如果月份mm < 10)
-            或 mm_DD_HH_MM_HH_MM (如果月份mm >= 10)
+    新格式: m_DD_HH_MM_HH_MM (例如: 2_15_10_30_11_00.mp4)
 
     Args:
         root_dir (str): 要处理的根目录的路径。
     """
     # 正则表达式用于匹配 "YYYY-mm-DD_HH-MM_HH-MM" 格式的文件名
-    # 它会捕获 年、月、日、第一个时间、第二个时间 这几部分
     filename_pattern = re.compile(
         r"(\d{4})-(\d{2})-(\d{2})_(\d{2}-\d{2})_(\d{2}-\d{2})\..+"
     )
@@ -101,7 +99,6 @@ def batch_rename_videos_in_directory(root_dir: str) -> None:
     for subdir, _, files in os.walk(root_dir):
         for filename in files:
             files_scanned_count += 1
-            # 检查文件名是否符合指定的格式
             match = filename_pattern.match(filename)
 
             if match:
@@ -114,8 +111,12 @@ def batch_rename_videos_in_directory(root_dir: str) -> None:
                 # 根据规则处理月份：如果月份以 '0' 开头，则去掉 '0'
                 new_month = month.lstrip("0")
 
+                # *** 这是修改过的关键行 ***
+                # 将时间部分 "HH-MM" 中的 '-' 替换为 '_'
+                new_time_part = f"{time1.replace('-', '_')}_{time2.replace('-', '_')}"
+
                 # 构建新的文件名
-                new_filename = f"{new_month}_{day}_{time1}_{time2}{extension}"
+                new_filename = f"{new_month}_{day}_{new_time_part}{extension}"
 
                 # 获取旧文件和新文件的完整路径
                 old_filepath = os.path.join(subdir, filename)
