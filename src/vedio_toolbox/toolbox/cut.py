@@ -63,14 +63,7 @@ def split_video(path: str, max_duration: int = 5400) -> None:
     if duration <= max_duration:
         # 视频时长小于等于max_duration，直接重命名为_part000
         output_path = os.path.join(dirname, f"{basename}_part000.mp4")
-        cmd = [
-            "ffmpeg",
-            "-i",
-            path,
-            "-c",
-            "copy",
-            output_path,
-        ]
+        os.rename(path, output_path)
     else:
         # 视频时长大于max_duration，按原逻辑分割
         output_pattern = os.path.join(dirname, f"{basename}_part%03d.mp4")
@@ -90,8 +83,7 @@ def split_video(path: str, max_duration: int = 5400) -> None:
             "1",
             output_pattern,
         ]
-
-    subprocess.run(cmd, check=True)
+        subprocess.run(cmd, check=True)
 
 
 def cut_videos(root_dir: str) -> None:
